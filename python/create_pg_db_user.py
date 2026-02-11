@@ -80,9 +80,9 @@ def main() -> None:
                         sql.SQL(
                             """
                             CREATE ROLE {role}
-                              WITH
+                            WITH
                                 LOGIN
-                                PASSWORD %s
+                                PASSWORD {password}
                                 NOSUPERUSER
                                 NOCREATEDB
                                 NOCREATEROLE
@@ -90,15 +90,21 @@ def main() -> None:
                                 NOREPLICATION
                                 NOBYPASSRLS;
                             """
-                        ).format(role=sql.Identifier(new_user)),
-                        (new_pass,),
+                        ).format(
+                            role=sql.Identifier(new_user),
+                            password=sql.Literal(new_pass),
+                        )
                     )
+
                     print(f"[OK] Роль создана: {new_user}")
                 else:
                     cur.execute(
-                        sql.SQL("ALTER ROLE {role} WITH PASSWORD %s NOSUPERUSER;")
-                        .format(role=sql.Identifier(new_user)),
-                        (new_pass,),
+                        sql.SQL(
+                            "ALTER ROLE {role} WITH PASSWORD {password} NOSUPERUSER;"
+                        ).format(
+                            role=sql.Identifier(new_user),
+                            password=sql.Literal(new_pass),
+                        )
                     )
                     print(f"[OK] Роль уже существовала, пароль обновлён: {new_user}")
 
